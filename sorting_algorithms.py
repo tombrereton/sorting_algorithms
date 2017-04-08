@@ -25,6 +25,27 @@ def selectionSort(a):
     return a
 
 
+def insertionSort(a):
+    """
+    a[m + 1..r] is the unsorted portion
+    a[l...m] is the sorted portion
+    a[l...m] is initialised with the left most element which is sorted.
+     we take the left most item in the unsorted portion.
+     We insert the item into the sorted portion so
+     that it remains sorted.
+    :param a:
+    :return:
+    """
+    for i in range(1, len(a)):
+        temp = a[i]
+        j = i
+        while (j > 0 and temp < a[j - 1]):
+            a[j] = a[j - 1]
+            j -= 1
+        a[j] = temp
+    return a
+
+
 def merge(arr, left, mid, right):
     """
     Merges 2 sub array of arr[l...r]
@@ -95,27 +116,6 @@ def mergeSort(arr, left, right):
         merge(arr, left, mid, right)
 
 
-def insertionSort(a):
-    """
-    a[m + 1..r] is the unsorted portion
-    a[l...m] is the sorted portion
-    a[l...m] is initialised with the left most element which is sorted.
-     we take the left most item in the unsorted portion.
-     We insert the item into the sorted portion so
-     that it remains sorted.
-    :param a:
-    :return:
-    """
-    for i in range(1, len(a)):
-        temp = a[i]
-        j = i
-        while (j > 0 and temp < a[j - 1]):
-            a[j] = a[j - 1]
-            j -= 1
-        a[j] = temp
-    return a
-
-
 def partition(arr, low, high):
     """
     This function takes middles element as pivot.
@@ -126,6 +126,8 @@ def partition(arr, low, high):
     :param low:
     :param high:
     """
+
+    # get random index between and including low and high
     random_index = random.randint(low, high)
     pivot = arr[random_index]  # pivot
 
@@ -168,9 +170,69 @@ def quickSort(arr, low, high):
         pi = partition(arr, low, high)
 
         # separately sort elements that are less than
-        # partion, and elements greater than partition
+        # partition, and elements greater than partition
         quickSort(arr, low, pi - 1)
         quickSort(arr, pi + 1, high)
+
+
+def countingSort(a, exp1):
+    """
+    A function to do counting osrt of a[] according to the
+    digit represent by exp1
+    :param a:
+    :param exp1:
+    :return:
+    """
+
+    n = len(a)
+
+    # The output array elements that will have sorted arr
+    output = [0] * (n)
+
+    # Initialise count array as 0
+    count = [0] * (10)
+
+    # Store count of occurances in count[]
+    for i in range(0, n):
+        index = int(a[i] / exp1)
+        count[(index) % 10] += 1
+
+    # Change count[i] so that count[i] now contains actual
+    # postion of this digit in output array
+    for i in range(1, 10):
+        count[i] += count[i - 1]
+
+    # Build the output array
+    i = n - 1
+    while (i >= 0):
+        index = int(a[i] / exp1)
+        output[count[(index) % 10] - 1] = a[i]
+        count[(index) % 10] -= 1
+        i -= 1
+
+    # Copying the output array to a[]
+    # so that arr now contains sorted numbers
+    i = 0
+    for i in range(0, len(a)):
+        a[i] = output[i]
+
+
+def radixSort(a):
+    """
+    Radix sort
+    :param a: array to be sorted
+    """
+
+    # Find the maximum number to know number of digits
+    max1 = max(a)
+
+    # Do counting sort for every digit. Note that instead
+    # of passing digit number, exp is passed. exp is 10^i
+    # where i is current digit number
+    exp = 1
+    while (max1 / exp > 0):
+        countingSort(a, exp)
+        exp *= 10
 
 
 class SortingTests(unittest.TestCase):
@@ -207,8 +269,14 @@ class SortingTests(unittest.TestCase):
 
     def test2_quicksort(self):
         """quick sort test 2"""
-        quickSort(self.a, 0, len(self.a) -1)
+        quickSort(self.a, 0, len(self.a) - 1)
         self.assertEqual(self.a, self.b)
+
+    def test_radixSort(self):
+        """radix sort test"""
+        radixSort(self.a)
+        self.assertEqual(self.a, self.b)
+
 
 if __name__ == '__main__':
     unittest.main()
