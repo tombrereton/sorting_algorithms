@@ -109,6 +109,9 @@ def insertionSort(a):
     return a
 
 
+def partition(arr, low, high):
+
+
 class SortingTests(unittest.TestCase):
     a = []
     b = []
