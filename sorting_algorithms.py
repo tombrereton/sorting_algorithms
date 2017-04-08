@@ -1,5 +1,12 @@
-"""Unit test for algorithms"""
 import unittest
+import random
+
+"""
+This is an implementation of common sorting algorithms.
+The algorithms are based on the implementations found
+on the geeksforgeeks website.
+The algorithms are unit tested to ensure correctness.
+"""
 
 
 def selectionSort(a):
@@ -110,15 +117,73 @@ def insertionSort(a):
 
 
 def partition(arr, low, high):
+    """
+    This function takes middles element as pivot.
+    It then places the pivot in its correct position so
+    that elements smaller than the pivot are to its left,
+    bigger elements to the right.
+    :param arr:
+    :param low:
+    :param high:
+    """
+    random_index = random.randint(low, high)
+    pivot = arr[random_index]  # pivot
+
+    # swap pivot and rightmost entry
+    arr[random_index], arr[high] = arr[high], arr[random_index]
+
+    # get left and right 'fence posts'
+    leftpost = low
+    rightpost = high - 1
+
+    # left of leftpost is 'less' than pivot
+    # right of rightpost is 'more' than pivot
+    # 1. move leftpost as far as possible
+    # 2. move rightpsot as far as possible
+    # 3. swap 2 entries & move both posts in
+    # repeat 1 to 3
+    # stop when leftpost and rightpost coincide
+    while (leftpost <= rightpost):
+        while (leftpost <= rightpost and arr[leftpost] <= pivot):
+            leftpost += 1
+        while (leftpost <= rightpost and arr[rightpost] >= pivot):
+            rightpost -= 1
+        if (leftpost < rightpost):
+            # we are at step 3, therefore swap entries
+            arr[leftpost], arr[rightpost] = arr[rightpost], arr[leftpost]
+    # we put pivot back in where leftpost is
+    arr[leftpost], arr[high] = arr[high], arr[leftpost]
+    return (leftpost)
+
+
+def quickSort(arr, low, high):
+    """
+    :param arr: The array to be sorted
+    :param low: starting index
+    :param high: ending index
+    :return:
+    """
+    if (low < high):
+        # pi is partitioning index
+        pi = partition(arr, low, high)
+
+        # separately sort elements that are less than
+        # partion, and elements greater than partition
+        quickSort(arr, low, pi - 1)
+        quickSort(arr, pi + 1, high)
 
 
 class SortingTests(unittest.TestCase):
     a = []
     b = []
+    c = []
+    d = []
 
     def setUp(self):
         self.a = [4, 23, 3, 2, 23, 67, 34]
         self.b = [2, 3, 4, 23, 23, 34, 67]
+        self.c = [10, 7, 5, 1, 3, 2]
+        self.d = [1, 2, 3, 5, 7, 10]
 
     def test_SelectionSort(self):
         """selection sort test"""
@@ -135,6 +200,15 @@ class SortingTests(unittest.TestCase):
         mergeSort(self.a, 0, len(self.a) - 1)
         self.assertEqual(self.a, self.b)
 
+    def test1_quicksort(self):
+        """quick sort test"""
+        quickSort(self.c, 0, len(self.c) - 1)
+        self.assertEqual(self.c, self.d)
+
+    def test2_quicksort(self):
+        """quick sort test 2"""
+        quickSort(self.a, 0, len(self.a) -1)
+        self.assertEqual(self.a, self.b)
 
 if __name__ == '__main__':
     unittest.main()
