@@ -192,29 +192,33 @@ def countingSort(a, exp1):
     # Initialise count array as 0
     count = [0] * (10)
 
-    # Store count of occurances in count[]
+    # Store count of occurrences in count[]
     for i in range(0, n):
-        index = int(a[i] / exp1)
-        count[(index) % 10] += 1
+        elem = a[i]
+        index = int(elem / exp1)
+        ind = index % 10
+        count[ind] = count[ind] + 1
 
     # Change count[i] so that count[i] now contains actual
-    # postion of this digit in output array
+    # position of this digit in output array
+    # As in, if we have one, 1 element, and three, 2 elements,
+    # and one, 3 elements, the 1 element begins at i = 0,
+    # the 2 elements begins at i = 1, and the 3 elements
+    # begin at i = 4.
     for i in range(1, 10):
-        count[i] += count[i - 1]
+        count[i] = count[i] + count[i - 1]
 
     # Build the output array
     i = n - 1
     while (i >= 0):
         index = int(a[i] / exp1)
-        output[count[(index) % 10] - 1] = a[i]
-        count[(index) % 10] -= 1
+        mod_index = index % 10
+        ind = count[mod_index]
+        output[ind - 1] = a[i]
+        count[index % 10] = count[index % 10] - 1
         i -= 1
 
-    # Copying the output array to a[]
-    # so that arr now contains sorted numbers
-    i = 0
-    for i in range(0, len(a)):
-        a[i] = output[i]
+    return output
 
 
 def radixSort(a):
@@ -222,17 +226,22 @@ def radixSort(a):
     Radix sort
     :param a: array to be sorted
     """
+    # don't mutate original array
+    arr = a
 
     # Find the maximum number to know number of digits
-    max1 = max(a)
+    max1 = max(arr)
 
     # Do counting sort for every digit. Note that instead
     # of passing digit number, exp is passed. exp is 10^i
     # where i is current digit number
     exp = 1
     while (max1 / exp > 0):
-        countingSort(a, exp)
+        arr = countingSort(arr, exp)
+        # countingSort(a, exp)
         exp *= 10
+
+    return arr
 
 
 class SortingTests(unittest.TestCase):
@@ -240,6 +249,7 @@ class SortingTests(unittest.TestCase):
     b = []
     c = []
     d = []
+    empty_a = []
 
     def setUp(self):
         self.a = [4, 23, 3, 2, 23, 67, 34]
@@ -247,35 +257,45 @@ class SortingTests(unittest.TestCase):
         self.c = [10, 7, 5, 1, 3, 2]
         self.d = [1, 2, 3, 5, 7, 10]
 
-    def test_SelectionSort(self):
+    def test_SelectionSort1(self):
         """selection sort test"""
         result = selectionSort(self.a)
         self.assertEqual(result, self.b)
 
-    def test_InsertionSort2(self):
-        """insertion sort 2 test"""
+    def test_SelectionSort2(self):
+        """selection sort test for empty array"""
+        result = selectionSort(self.empty_a)
+        self.assertEqual(result, [])
+
+    def test_InsertionSort1(self):
+        """insertion sort 1 test"""
         result = insertionSort(self.a)
         self.assertEqual(result, self.b)
+
+    def test_InsertionSort2(self):
+        """insertion sort 2 test"""
+        result = insertionSort(self.empty_a)
+        self.assertEqual(result, [])
 
     def test_MergeSort(self):
         """merge sort test"""
         mergeSort(self.a, 0, len(self.a) - 1)
         self.assertEqual(self.a, self.b)
 
-    def test1_quicksort(self):
+    def test_quicksort1(self):
         """quick sort test"""
         quickSort(self.c, 0, len(self.c) - 1)
         self.assertEqual(self.c, self.d)
 
-    def test2_quicksort(self):
+    def test_quicksort2(self):
         """quick sort test 2"""
         quickSort(self.a, 0, len(self.a) - 1)
         self.assertEqual(self.a, self.b)
 
     def test_radixSort(self):
         """radix sort test"""
-        radixSort(self.a)
-        self.assertEqual(self.a, self.b)
+        result = radixSort(self.a)
+        self.assertEqual(result, self.b)
 
 
 if __name__ == '__main__':
